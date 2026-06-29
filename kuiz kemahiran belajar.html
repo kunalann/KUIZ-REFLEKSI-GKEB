@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuiz Kemahiran Belajar</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --biru: #2563EB;
+    --biru-muda: #EFF6FF;
+    --biru-border: #BFDBFE;
+    --hijau: #16A34A;
+    --hijau-muda: #F0FDF4;
+    --hijau-border: #BBF7D0;
+    --merah: #DC2626;
+    --merah-muda: #FEF2F2;
+    --merah-border: #FECACA;
+    --kelabu-gelap: #1E293B;
+    --kelabu: #475569;
+    --kelabu-muda: #94A3B8;
+    --border: #E2E8F0;
+    --bg: #F8FAFC;
+    --putih: #FFFFFF;
+    --radius: 10px;
+    --fon: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  }
+
+  body {
+    font-family: var(--fon);
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 600px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .header-label {
+    display: inline-block;
+    background: var(--biru-muda);
+    color: var(--biru);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 99px;
+    margin-bottom: 10px;
+  }
+  .header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--kelabu-gelap);
+    line-height: 1.3;
+  }
+  .header p {
+    font-size: 14px;
+    color: var(--kelabu-muda);
+    margin-top: 4px;
+  }
+
+  /* Kad soalan */
+  .kad {
+    background: var(--putih);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  }
+
+  /* Progress */
+  .progress-baris {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1.25rem;
+  }
+  .progress-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-isi {
+    height: 100%;
+    background: var(--biru);
+    border-radius: 99px;
+    transition: width 0.4s ease;
+  }
+  .progress-teks {
+    font-size: 13px;
+    color: var(--kelabu-muda);
+    white-space: nowrap;
+    min-width: 64px;
+    text-align: right;
+  }
+
+  /* Soalan */
+  .soalan-teks {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--kelabu-gelap);
+    line-height: 1.65;
+    margin-bottom: 1.25rem;
+  }
+
+  /* Pilihan */
+  .pilihan-list {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 1.25rem;
+  }
+  .pilihan-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--kelabu-gelap);
+    font-size: 14px;
+    font-family: var(--fon);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    line-height: 1.5;
+  }
+  .pilihan-btn:hover:not(:disabled) {
+    border-color: var(--biru);
+    background: var(--biru-muda);
+  }
+  .pilihan-huruf {
+    flex-shrink: 0;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--kelabu);
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .pilihan-btn:hover:not(:disabled) .pilihan-huruf {
+    background: var(--biru);
+    color: white;
+  }
+  .pilihan-btn.betul {
+    border-color: var(--hijau-border);
+    background: var(--hijau-muda);
+    color: var(--hijau);
+  }
+  .pilihan-btn.betul .pilihan-huruf {
+    background: var(--hijau);
+    color: white;
+  }
+  .pilihan-btn.salah {
+    border-color: var(--merah-border);
+    background: var(--merah-muda);
+    color: var(--merah);
+  }
+  .pilihan-btn.salah .pilihan-huruf {
+    background: var(--merah);
+    color: white;
+  }
+  .pilihan-btn.tunjuk-betul {
+    border-color: var(--hijau-border);
+    background: var(--hijau-muda);
+    color: var(--hijau);
+  }
+  .pilihan-btn.tunjuk-betul .pilihan-huruf {
+    background: var(--hijau);
+    color: white;
+  }
+  .pilihan-btn:disabled { cursor: default; }
+
+  /* Maklum balas */
+  .maklumbalas {
+    font-size: 13.5px;
+    padding: 11px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 1.25rem;
+    line-height: 1.55;
+    display: none;
+    border: 1px solid transparent;
+  }
+  .maklumbalas.tunjuk { display: block; }
+  .maklumbalas.betul {
+    background: var(--hijau-muda);
+    border-color: var(--hijau-border);
+    color: #166534;
+  }
+  .maklumbalas.salah {
+    background: var(--merah-muda);
+    border-color: var(--merah-border);
+    color: #991B1B;
+  }
+
+  /* Butang seterusnya */
+  .btn-seterusnya {
+    display: none;
+    padding: 11px 24px;
+    background: var(--biru);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--fon);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .btn-seterusnya.tunjuk { display: inline-block; }
+  .btn-seterusnya:hover { background: #1D4ED8; }
+
+  /* Panel markah */
+  .markah-panel {
+    display: none;
+    text-align: center;
+    padding: 0.5rem 0;
+  }
+  .markah-bulatan {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    border: 4px solid var(--biru);
+    background: var(--biru-muda);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+  }
+  .markah-angka { font-size: 38px; font-weight: 800; color: var(--biru); line-height: 1; }
+  .markah-dari { font-size: 13px; color: var(--kelabu-muda); margin-top: 2px; }
+  .markah-tajuk { font-size: 20px; font-weight: 700; color: var(--kelabu-gelap); margin-bottom: 6px; }
+  .markah-sub { font-size: 14px; color: var(--kelabu); margin-bottom: 1.5rem; line-height: 1.6; }
+  .btn-ulang {
+    padding: 11px 24px;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: var(--fon);
+    color: var(--kelabu-gelap);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    margin-bottom: 2rem;
+  }
+  .btn-ulang:hover { border-color: var(--biru); background: var(--biru-muda); color: var(--biru); }
+
+  /* Semak semula */
+  .semak-tajuk {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--kelabu-muda);
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 10px;
+  }
+  .semak-item {
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 8px;
+    text-align: left;
+  }
+  .semak-item.betul { border-color: var(--hijau-border); }
+  .semak-item.salah { border-color: var(--merah-border); }
+  .semak-status {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 5px;
+  }
+  .semak-item.betul .semak-status { color: var(--hijau); }
+  .semak-item.salah .semak-status { color: var(--merah); }
+  .semak-soalan { font-size: 13px; font-weight: 600; color: var(--kelabu-gelap); margin-bottom: 4px; line-height: 1.5; }
+  .semak-huraian { font-size: 13px; color: var(--kelabu); line-height: 1.5; }
+
+  @media (max-width: 480px) {
+    body { padding: 1rem 0.75rem; }
+    .kad { padding: 1.25rem; }
+    .soalan-teks { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="header-label">Kemahiran Belajar</div>
+    <h1>Kuiz Kemahiran Belajar &amp; Berfikir</h1>
+    <p>10 soalan aneka pilihan</p>
+  </div>
+
+  <div class="kad">
+    <div id="kuiz-panel">
+      <div class="progress-baris">
+        <div class="progress-bar"><div class="progress-isi" id="progress"></div></div>
+        <div class="progress-teks" id="progress-teks"></div>
+      </div>
+      <div class="soalan-teks" id="soalan-teks"></div>
+      <div class="pilihan-list" id="pilihan-list"></div>
+      <div class="maklumbalas" id="maklumbalas"></div>
+      <button class="btn-seterusnya" id="btn-seterusnya" onclick="soalanSeterusnya()"></button>
+    </div>
+
+    <div class="markah-panel" id="markah-panel">
+      <div class="markah-bulatan">
+        <div class="markah-angka" id="markah-angka"></div>
+        <div class="markah-dari">/ 10</div>
+      </div>
+      <div class="markah-tajuk" id="markah-tajuk"></div>
+      <div class="markah-sub" id="markah-sub"></div>
+      <button class="btn-ulang" onclick="mulaSemulaKuiz()">↺ Cuba semula</button>
+      <div id="semak-semula"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const HURUF = ['A','B','C','D'];
+
+const soalan = [
+  {
+    s: "Teknik membaca apakah yang paling sesuai digunakan untuk mencari fakta tertentu dengan cepat dalam sebuah teks panjang?",
+    p: ["Membaca intensif", "Membaca laju (speed reading)", "Imbasan (scanning)", "Skimming"],
+    j: 2,
+    h: "Scanning (imbasan) digunakan untuk mencari maklumat atau fakta tertentu dengan cepat tanpa membaca keseluruhan teks."
+  },
+  {
+    s: "Kaedah nota Cornell membahagikan halaman kepada berapa bahagian utama?",
+    p: ["2 bahagian", "3 bahagian", "4 bahagian", "5 bahagian"],
+    j: 1,
+    h: "Kaedah Cornell membahagikan halaman kepada 3 bahagian: kolum soalan (kiri), kolum nota (kanan), dan ruangan ringkasan (bawah)."
+  },
+  {
+    s: "Siapakah yang memperkenalkan konsep Peta Minda (Mind Map)?",
+    p: ["Edward de Bono", "Benjamin Bloom", "Tony Buzan", "Howard Gardner"],
+    j: 2,
+    h: "Tony Buzan, penulis dan ahli psikologi British, memperkenalkan dan mempopularkan konsep Peta Minda pada tahun 1970-an."
+  },
+  {
+    s: "Dalam Taksonomi Bloom, aras manakah yang dianggap sebagai KBAT (Kemahiran Berfikir Aras Tinggi)?",
+    p: ["Pengetahuan dan Pemahaman", "Aplikasi dan Analisis", "Analisis, Sintesis dan Penilaian", "Sintesis sahaja"],
+    j: 2,
+    h: "KBAT merujuk kepada tiga aras tertinggi Taksonomi Bloom: Analisis, Sintesis (Mencipta), dan Penilaian — yang memerlukan pemikiran kritis dan kreatif."
+  },
+  {
+    s: "Topi warna apakah yang mewakili pemikiran kreatif dan idea baharu dalam teori Enam Topi de Bono?",
+    p: ["Topi Putih", "Topi Hijau", "Topi Kuning", "Topi Merah"],
+    j: 1,
+    h: "Topi Hijau dalam teori Enam Topi Pemikiran de Bono mewakili kreativiti, idea baharu, dan pemikiran di luar kotak (lateral thinking)."
+  },
+  {
+    s: "Berapa jenis Peta i-Think yang diperkenalkan oleh Kementerian Pendidikan Malaysia?",
+    p: ["6 jenis", "8 jenis", "10 jenis", "12 jenis"],
+    j: 1,
+    h: "Terdapat 8 jenis Peta i-Think: Peta Bulatan, Peta Buih, Peta Buih Berganda, Peta Pokok, Peta Dakap, Peta Alir, Peta Multi-alir, dan Peta Titi."
+  },
+  {
+    s: "Kaedah nota manakah yang paling sesuai digunakan untuk membandingkan beberapa konsep dalam masa yang sama?",
+    p: ["Kaedah Cornell", "Peta Minda", "Jadual perbandingan / Matriks", "Nota linear"],
+    j: 2,
+    h: "Jadual perbandingan atau matriks membolehkan pelajar membandingkan pelbagai konsep secara terus dalam lajur dan baris yang tersusun."
+  },
+  {
+    s: 'Dalam CoRT 3 de Bono, apakah maksud singkatan "PMI"?',
+    p: ["Positif, Membina, Inovatif", "Plus, Minus, Interesting", "Plan, Method, Idea", "Potential, Meaning, Impact"],
+    j: 1,
+    h: "PMI bermaksud Plus (kelebihan), Minus (kekurangan), dan Interesting (yang menarik) — alat pemikiran de Bono untuk menilai idea secara seimbang."
+  },
+  {
+    s: "Jenis pemikiran manakah yang melibatkan penilaian semula pengalaman dan pembelajaran sendiri?",
+    p: ["Pemikiran kritis", "Pemikiran kreatif", "Pemikiran reflektif", "Pemikiran lateral"],
+    j: 2,
+    h: "Pemikiran reflektif melibatkan proses meneliti dan menilai semula pengalaman, tindakan, dan pembelajaran diri sendiri untuk meningkatkan pemahaman."
+  },
+  {
+    s: "Program Peta i-Think diperkenalkan oleh KPM pada tahun berapa?",
+    p: ["2010", "2011", "2012", "2014"],
+    j: 1,
+    h: "Program i-Think dilancarkan oleh Kementerian Pendidikan Malaysia (KPM) pada tahun 2011 sebagai inisiatif untuk membudayakan kemahiran berfikir dalam kalangan pelajar."
+  }
+];
+
+let soalanSemasa = 0, markah = 0, jawapanPengguna = [];
+
+function mulaKuiz() {
+  soalanSemasa = 0; markah = 0; jawapanPengguna = [];
+  document.getElementById('kuiz-panel').style.display = 'block';
+  document.getElementById('markah-panel').style.display = 'none';
+  paparSoalan();
+}
+
+function paparSoalan() {
+  const q = soalan[soalanSemasa];
+  const pct = (soalanSemasa / soalan.length) * 100;
+  document.getElementById('progress').style.width = pct + '%';
+  document.getElementById('progress-teks').textContent = (soalanSemasa + 1) + ' / ' + soalan.length;
+  document.getElementById('soalan-teks').textContent = q.s;
+
+  const pl = document.getElementById('pilihan-list');
+  pl.innerHTML = '';
+  q.p.forEach((p, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'pilihan-btn';
+    btn.innerHTML = '<span class="pilihan-huruf">' + HURUF[i] + '</span><span>' + p + '</span>';
+    btn.onclick = () => pilihJawapan(i);
+    pl.appendChild(btn);
+  });
+
+  const mb = document.getElementById('maklumbalas');
+  mb.className = 'maklumbalas';
+  mb.textContent = '';
+  const bs = document.getElementById('btn-seterusnya');
+  bs.className = 'btn-seterusnya';
+}
+
+function pilihJawapan(idx) {
+  const q = soalan[soalanSemasa];
+  const btns = document.querySelectorAll('.pilihan-btn');
+  btns.forEach(b => b.disabled = true);
+  const betul = (idx === q.j);
+  btns[idx].classList.add(betul ? 'betul' : 'salah');
+  if (!betul) btns[q.j].classList.add('tunjuk-betul');
+  if (betul) markah++;
+  jawapanPengguna.push({ soalan: q.s, betulKah: betul, huraian: q.h });
+
+  const mb = document.getElementById('maklumbalas');
+  mb.className = 'maklumbalas tunjuk ' + (betul ? 'betul' : 'salah');
+  mb.textContent = (betul ? '✓ Betul! ' : '✗ Kurang tepat. ') + q.h;
+
+  const bs = document.getElementById('btn-seterusnya');
+  bs.className = 'btn-seterusnya tunjuk';
+  bs.textContent = soalanSemasa < soalan.length - 1 ? 'Soalan seterusnya →' : 'Lihat keputusan';
+}
+
+function soalanSeterusnya() {
+  soalanSemasa++;
+  if (soalanSemasa < soalan.length) {
+    paparSoalan();
+  } else {
+    paparMarkah();
+  }
+}
+
+function paparMarkah() {
+  document.getElementById('progress').style.width = '100%';
+  document.getElementById('kuiz-panel').style.display = 'none';
+  document.getElementById('markah-panel').style.display = 'block';
+  document.getElementById('markah-angka').textContent = markah;
+
+  const pct = markah / soalan.length;
+  let tajuk, sub;
+  if (pct >= 0.9) { tajuk = 'Cemerlang!'; sub = 'Prestasi luar biasa. Anda menguasai topik ini dengan sangat baik.'; }
+  else if (pct >= 0.7) { tajuk = 'Bagus!'; sub = 'Prestasi yang baik. Ulang kaji soalan yang tersilap untuk pemahaman yang lebih mantap.'; }
+  else if (pct >= 0.5) { tajuk = 'Boleh ditingkatkan'; sub = 'Cuba semula selepas mengulang kaji nota dan bahan pembelajaran anda.'; }
+  else { tajuk = 'Perlu lebih latihan'; sub = 'Jangan putus asa — semak semula bahan pembelajaran dan cuba lagi. Anda pasti boleh!'; }
+
+  document.getElementById('markah-tajuk').textContent = tajuk;
+  document.getElementById('markah-sub').textContent = sub;
+
+  const sr = document.getElementById('semak-semula');
+  sr.innerHTML = '<div class="semak-tajuk">Semak semula jawapan</div>';
+  jawapanPengguna.forEach((j, i) => {
+    const div = document.createElement('div');
+    div.className = 'semak-item ' + (j.betulKah ? 'betul' : 'salah');
+    div.innerHTML =
+      '<div class="semak-status">' + (j.betulKah ? '✓ Betul' : '✗ Salah') + ' — Soalan ' + (i + 1) + '</div>' +
+      '<div class="semak-soalan">' + j.soalan + '</div>' +
+      '<div class="semak-huraian">' + j.huraian + '</div>';
+    sr.appendChild(div);
+  });
+}
+
+function mulaSemulaKuiz() { mulaKuiz(); }
+
+mulaKuiz();
+</script>
+</body>
+</html>
